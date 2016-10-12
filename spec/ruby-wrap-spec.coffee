@@ -1,31 +1,33 @@
 RubyWrap = require '../lib/ruby-wrap'
 
 describe "RubyWrap", ->
-  [workspaceElement, activationPromise] = []
+  [workspaceElement, activationPromise, editor] = []
 
   beforeEach ->
     workspaceElement = atom.views.getView(atom.workspace)
     activationPromise = atom.packages.activatePackage('ruby-wrap')
-    editor: null
+
+    waitsForPromise ->
+      atom.workspace.open().then (o) ->
+        editor = o
+
+    waitsForPromise ->
+      atom.packages.activatePackage('language-ruby')
+
 
   describe "when the ruby-wrap:wrap-line event is triggered", ->
     it "wraps the line", ->
+      editor.insertText("        let(:something) { create(User, property_a: 'foo', propert_b: { hash: 123}, property_c: 'bar')}")
+
       atom.commands.dispatch workspaceElement, 'ruby-wrap:wrap-line'
 
-      waitsForPromise ->
-        atom.workspace.open('fixture.rb').then (o) ->
-          editor = o
-      waitsForPromise ->
-        activationPromise
+      waitsForPromise -> activationPromise
 
-      runs ->
-        # https://atom.io/docs/api/v1.10.2/TextEditor
-        expect(editor.getText()).toEq("subject\n{stuff\n}")
-        #
-        # rubyWrapElement = workspaceElement.querySelector('.ruby-wrap')
-        # expect(rubyWrapElement).toExist()
-        #
-        # rubyWrapPanel = atom.workspace.panelForItem(rubyWrapElement)
-        # expect(rubyWrapPanel.isVisible()).toBe true
-        # atom.commands.dispatch workspaceElement, 'ruby-wrap:toggle'
-        # expect(rubyWrapPanel.isVisible()).toBe false
+      expect(editor.getText()).toContain("let(:something) do
+        create(
+          User,
+          property_a: 'foo',
+          propert_b: { hash: 123 },
+          property_c: 'baz'
+        )
+      end")
