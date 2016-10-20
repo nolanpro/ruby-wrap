@@ -1,3 +1,4 @@
+# complete command
 class Foo
   def bar
     let(:something) do
@@ -8,3 +9,12 @@ class Foo
         property_c: 'baz'
       )
     end
+
+# unfinished command
+class Foo
+  def bar
+    let(:something) do
+      create(
+        User,
+        property_a: 'foo',
+        propert_b: { hash: 123 }

@@ -19,19 +19,18 @@ module.exports = RubyWrap =
       editor.selectToBeginningOfLine()
 
       line = editor.getSelectedText()
-      # try
       @convert(line)
-      # catch e
-      #   converted = line
-      console.log @converted
-      console.log @converted.join("\n")
-      editor.insertText(@converted.join("\n"), { autoIndent: true } )
+      editor.insertText(@converted.join("\n"))
+
+
 
   convert: (line) ->
     @current_indent_spaces = line.match(/^\s*/)[0].length
     @converted = [line.replace(/^\s*/, '')]
     next_element = @doEndConvert(@converted[0])
     next_element = @parenthesisConvert(next_element)
+
+    # for char in line
 
 
     # @betwixCurlies(line)
@@ -48,7 +47,6 @@ module.exports = RubyWrap =
       vals = val.split("\n")
       vals[1] = [vals[1]]
       element = vals
-      debugger
       return element[1]
     else
       return element[0]
@@ -57,13 +55,14 @@ module.exports = RubyWrap =
     if str.match(/\)\s*\{/)
       # original_indent = @indent()
       # new_indent = @indent(1)
-      val = str.replace(/\)\s*\{(.*)\}/, ") do\n$1\nEND")
+      val = str.replace(/\)\s*\{(.*)\}/, ") do\n$1\nend")
       vals = val.split("\n")
       vals[1] = [vals[1]]
       @converted = vals
       return @converted[1]
     else
       return @converted[0]
+
 
 
   # indent: (amount = 0) ->
